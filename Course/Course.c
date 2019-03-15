@@ -39,26 +39,60 @@ DeclareTask(maincourse);
 // priorite 50 
 TASK(init)
 {
-	ecrobot_init_sonar_sensor(NXT_PORT_S2);
-	distance = ecrobot_get_sonar_sensor(NXT_PORT_S2);
-
+	ecrobot_init_sonar_sensor(NXT_PORT_S3);
+	distance = ecrobot_get_sonar_sensor(NXT_PORT_S3);
+	ChainTask(maincourse);
 }
+
+//	Task principale
+//	priorité minimale
+TASK(maincourse){
+	// adaptation vitesse
+	if(distance > 100){vitesse = 100;}
+	else if (distance > 20){vitesse = distance;}
+	else{vitesse = 0;}
+	ecrobot_set_motor_speed(NXT_PORT_A, vitesse);
+	ecrobot_set_motor_speed(NXT_PORT_C, vitesse);
+	
+	distance = ecrobot_get_sonar_sensor(NXT_PORT_S3);
+	
+	display_clear(1);
+	display_goto_xy(0,0);
+	display_string("main");
+	display_update();
+	
+	ChainTask(check_collide);
+}
+
 
 //Task check collision
 // priorité 2
 TASK(check_collide){
 	
-	//au moins tous les 3-500 ms
-		distance = ecrobot_get_sonar_sensor(NXT_PORT_S2);
-		
-	/*	Affichage de la distance sur l'ecran 
-	 * 
-	 * display_clear(1);
+		distance = ecrobot_get_sonar_sensor(NXT_PORT_S3);
+		display_clear(1);
 		display_goto_xy(0,0);
-		display_int(ecrobot_get_sonar_sensor(NXT_PORT_S2), 3);
+		display_int(distance ,3);
 		display_update();
-	*/
-
+		
+		if(distance <20)
+		{
+			ChainTask(stop);
+		}
+		else if(ecrobot_get_touch_sensor(NXT_PORT_S4) == 1)
+		{
+			ecrobot_set_motor_speed(NXT_PORT_A, -100);
+			ecrobot_set_motor_speed(NXT_PORT_C, 0);
+			systick_wait_ms(500);
+		}
+		else if(ecrobot_get_touch_sensor(NXT_PORT_S1) == 1)
+		{
+			ecrobot_set_motor_speed(NXT_PORT_A, 0);
+			ecrobot_set_motor_speed(NXT_PORT_C, -100);
+			systick_wait_ms(500);
+		}
+		
+		ChainTask(maincourse);
 	}
  
 // Task stop
@@ -66,38 +100,15 @@ TASK(check_collide){
 
 TASK(stop){
 	//moteur à zero
-	if(	ecrobot_get_touch_sensor(NXT_PORT_S1) ||
-		ecrobot_get_touch_sensor(NXT_PORT_S3) || 
-		distance < 30)
-	{
-		ecrobot_set_motor_speed(NXT_PORT_A, -100);
-		ecrobot_set_motor_speed(NXT_PORT_C, -100);
-		systick_wait_ms(200);
-		ecrobot_set_motor_speed(NXT_PORT_A, 0);
-		ecrobot_set_motor_speed(NXT_PORT_C, 0);
-		distance = 0;
-	}
-}
-
-
-//	Task avancer 
-//	priorité minimale
-TASK(maincourse){
-	// adaptation vitesse
-	if(distance > 100)
-		{
-			vitesse = 100;
-		}
-		else if (distance > 30)
-		{
-			vitesse = distance;
-		}
-		else
-		{
-			vitesse = 0;
-		}
-	ecrobot_set_motor_speed(NXT_PORT_A, vitesse);
-	ecrobot_set_motor_speed(NXT_PORT_C, vitesse);
+	display_clear(1);
+	display_goto_xy(0,0);
+	display_string("stop");
+	display_update();
+	ecrobot_set_motor_speed(NXT_PORT_A, -100);
+	ecrobot_set_motor_speed(NXT_PORT_C, -100);
+	systick_wait_ms(500);
+	distance = 0;
+	ChainTask(maincourse);
 }
 
 

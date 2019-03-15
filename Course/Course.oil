@@ -34,15 +34,6 @@ CPU test {
         LDFLAGS = "-g --cref --allow-multiple-definition --gc-sections";
         LDFLAGS = "-L/share/l3seta/ITR/osek_env/arm-elf//lib/gcc/arm-elf/4.5.1/ -lgcc -L/share/l3seta/ITR/osek_env/arm-elf//arm-elf/lib -lc";
         SYSTEM_CALL = TRUE;
-        
-        COMPILER = "arm-elf-gcc";
-        ASSEMBLER = "arm-elf-as";
-        LINKER = "arm-elf-ld";
-        MEMMAP = TRUE{
-        LDFLAGS = "-g --cref --allow-multiple-definition --gc-sections";
-        LDFLAGS = "-L/share/l3seta/ITR/osek_env/arm-elf//lib/gcc/arm-elf/4.5.1/ -lgcc -L/share/l3seta/ITR/osek_env/arm-elf//arm-elf/lib -lc";
-        SYSTEM_CALL = TRUE;
-        
         COMPILER = "arm-elf-gcc";
         ASSEMBLER = "arm-elf-as";
         LINKER = "arm-elf-ld";
@@ -59,29 +50,29 @@ CPU test {
     
 
     TASK init {
-        PRIORITY = 1;
+        PRIORITY = 3;
         AUTOSTART = TRUE { APPMODE = std; };
         ACTIVATION = 1;
         SCHEDULE = FULL;
     };
     
     TASK stop {
-        PRIORITY = 100;
-        AUTOSTART = TRUE { APPMODE = std; };
+        PRIORITY = 1;
+        AUTOSTART = FALSE;
         ACTIVATION = 1;
         SCHEDULE = FULL;
     };
     
     TASK check_collide {
-        PRIORITY = 50;
-        AUTOSTART = TRUE{ APPMODE = std; };
+        PRIORITY = 1;
+        AUTOSTART = FALSE;
         ACTIVATION = 1;
         SCHEDULE = FULL;
     };
     
     TASK maincourse{
-        PRIORITY = 1;
-        AUTOSTART = TRUE { APPMODE = std; };
+        PRIORITY = 2;
+        AUTOSTART = FALSE;
         ACTIVATION = 1;
         SCHEDULE = FULL;
     };   
