@@ -22,6 +22,7 @@
 
 int distance = 0;
 int vitesse = 0;
+int pathSearch = 0;
 
 FUNC(int, OS_APPL_CODE) main(void)
 {   
@@ -34,6 +35,7 @@ DeclareTask(init);
 DeclareTask(check_collide);
 DeclareTask(stop);
 DeclareTask(maincourse);
+DeclareTask(search_path);
 
 //task init
 // priorite 50 
@@ -106,11 +108,41 @@ TASK(stop){
 	display_update();
 	ecrobot_set_motor_speed(NXT_PORT_A, -100);
 	ecrobot_set_motor_speed(NXT_PORT_C, -100);
-	systick_wait_ms(500);
+	systick_wait_ms(300);
 	distance = 0;
-	ChainTask(maincourse);
+	ChainTask(serach_path);
 }
 
+// Task search path
+
+TASK(serach_path){
+	if(pathSearch == 0)
+	{
+		//rotate 3/8 rigth
+		ecrobot_set_motor_speed(NXT_PORT_A, 0);
+		ecrobot_set_motor_speed(NXT_PORT_C, -100);
+		systick_wait_ms(750);
+		ecrobot_set_motor_speed(NXT_PORT_C, 0);
+		pathSearch=1;
+	}
+	distance = ecrobot_get_sonar_sensor(NXT_PORT_S3);
+	
+	if(distance < 30)
+	{
+		//rotate 1/8 left
+		ecrobot_set_motor_speed(NXT_PORT_A, -100);
+		ecrobot_set_motor_speed(NXT_PORT_C, 0);
+		systick_wait_ms(250);
+		ecrobot_set_motor_speed(NXT_PORT_A, 0);
+		ChainTask(serach_path);
+	}
+	else
+	{
+		//continue
+		pathSearch=0;
+		ChainTask(maincourse);
+	}
+} 
 
 
 ISR(isr_button_start)
